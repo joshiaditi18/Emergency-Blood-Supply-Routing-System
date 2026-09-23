@@ -1,0 +1,34 @@
+from alembic import context
+from flask import current_app
+
+from backend.app import db
+from backend.app.models import register_models
+
+config = context.config
+
+register_models()
+target_metadata = db.metadata
+
+
+def get_url():
+    return current_app.config["SQLALCHEMY_DATABASE_URI"]
+
+
+def run_migrations_offline():
+    context.configure(url=get_url(), target_metadata=target_metadata, literal_binds=True)
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+def run_migrations_online():
+    connectable = current_app.extensions["migrate"].db.engine
+    with connectable.connect() as connection:
+        context.configure(connection=connection, target_metadata=target_metadata)
+        with context.begin_transaction():
+            context.run_migrations()
+
+
+if context.is_offline_mode():
+    run_migrations_offline()
+else:
+    run_migrations_online()

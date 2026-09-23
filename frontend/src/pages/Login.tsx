@@ -1,0 +1,11 @@
+import { FormEvent, useState } from "react";
+import { Droplets, ShieldCheck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
+import { ApiClientError } from "../api/client";
+
+export default function Login() {
+  const { login } = useAuth(); const navigate = useNavigate(); const [email, setEmail] = useState("admin@demo.blood"); const [password, setPassword] = useState(""); const [error, setError] = useState(""); const [submitting, setSubmitting] = useState(false);
+  const submit = async (event: FormEvent) => { event.preventDefault(); setError(""); setSubmitting(true); try { await login(email, password); navigate("/dashboard", { replace: true }); } catch (reason) { setError(reason instanceof ApiClientError ? reason.message : "Unable to sign in"); } finally { setSubmitting(false); } };
+  return <main className="login-shell"><section className="login-panel"><div className="brand login-brand"><div className="brand-mark"><Droplets size={20} /></div><div><strong>BloodRoute</strong><span>Emergency logistics</span></div></div><p className="eyebrow">Secure operations access</p><h1>Coordinate the next critical delivery.</h1><p className="login-copy">Sign in to review requests, hospital inventory and dispatch workflows.</p><form onSubmit={submit}><label className="form-label">Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label><label className="form-label">Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>{error && <div className="login-error">{error}</div>}<button className="button primary login-button" disabled={submitting}>{submitting ? "Signing in..." : "Sign in"}</button></form><div className="login-security"><ShieldCheck size={15} /> Protected by backend JWT and role-based access control</div><p className="page-footnote"><span>DEMO ENVIRONMENT</span> Use a configured backend account. No credentials are shown in the interface.</p></section></main>;
+}
